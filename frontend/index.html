@@ -742,7 +742,33 @@ select option { background: #060914; }
 </head>
 <body>
 
-<div class="shell">
+<!-- Auth Screen -->
+<div id="authScreen" style="position:fixed;inset:0;z-index:1000;background:var(--bg-deep);display:flex;align-items:center;justify-content:center;">
+<div style="background:rgba(12,16,35,0.9);border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:400px;backdrop-filter:blur(20px);position:relative;overflow:hidden;">
+<div style="position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(91,143,255,0.4),transparent)"></div>
+<div style="text-align:center;margin-bottom:32px">
+<div style="width:52px;height:52px;background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 14px;box-shadow:0 0 30px var(--accent-glow)">🎯</div>
+<div style="font-family:var(--syne);font-size:22px;font-weight:800;color:var(--text)" id="authTitle">Welcome back</div>
+<div style="font-size:12px;color:var(--muted);margin-top:4px" id="authSub">Sign in to your career engine</div>
+</div>
+<div id="loginForm">
+<div class="field" style="margin-bottom:14px"><label>Username</label><input type="text" id="loginUsername" placeholder="your username"></div>
+<div class="field" style="margin-bottom:24px"><label>PIN</label><input type="password" id="loginPin" placeholder="••••" maxlength="10" onkeydown="if(event.key==='Enter')doLogin()"></div>
+<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">Sign in →</button>
+<div style="text-align:center;margin-top:16px;font-size:13px;color:var(--muted)">No account? <span style="color:var(--accent);cursor:pointer" onclick="showRegister()">Create one</span></div>
+<div id="loginError" style="color:var(--pink);font-size:12px;text-align:center;margin-top:10px;display:none"></div>
+</div>
+<div id="registerForm" style="display:none">
+<div class="field" style="margin-bottom:14px"><label>Full name</label><input type="text" id="regName" placeholder="Rahul Ravula"></div>
+<div class="field" style="margin-bottom:14px"><label>Username</label><input type="text" id="regUsername" placeholder="choose a username"></div>
+<div class="field" style="margin-bottom:24px"><label>PIN (4+ digits)</label><input type="password" id="regPin" placeholder="choose a PIN" maxlength="10" onkeydown="if(event.key==='Enter')doRegister()"></div>
+<button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doRegister()">Create account →</button>
+<div style="text-align:center;margin-top:16px;font-size:13px;color:var(--muted)">Have an account? <span style="color:var(--accent);cursor:pointer" onclick="showLogin()">Sign in</span></div>
+<div id="regError" style="color:var(--pink);font-size:12px;text-align:center;margin-top:10px;display:none"></div>
+</div>
+</div>
+</div>
+<div class="shell" id="appShell" style="display:none">
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="logo-wrap">
@@ -1514,3 +1540,178 @@ loadSponsors();
 </script>
 </body>
 </html>
+<script>
+// ── Auth system ───────────────────────────────────────
+const BASE = window.location.origin;
+let currentUser = null;
+
+function getHeaders() {
+  const uid = localStorage.getItem('uid');
+  return {'Content-Type':'application/json', ...(uid ? {'x-user-id': uid} : {})};
+}
+
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('authTitle').textContent = 'Welcome back';
+  document.getElementById('authSub').textContent = 'Sign in to your career engine';
+}
+
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  document.getElementById('authTitle').textContent = 'Create account';
+  document.getElementById('authSub').textContent = 'Your personal career engine awaits';
+}
+
+async function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const pin = document.getElementById('loginPin').value.trim();
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!username || !pin) { errEl.textContent = 'Enter username and PIN'; errEl.style.display = 'block'; return; }
+  try {
+    const r = await fetch(`${BASE}/api/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, pin})});
+    if (!r.ok) { const d = await r.json(); errEl.textContent = d.detail || 'Invalid credentials'; errEl.style.display='block'; return; }
+    const data = await r.json();
+    loginSuccess(data);
+  } catch(e) {
+    errEl.textContent = 'Cannot reach server'; errEl.style.display = 'block';
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const username = document.getElementById('regUsername').value.trim();
+  const pin = document.getElementById('regPin').value.trim();
+  const errEl = document.getElementById('regError');
+  errEl.style.display = 'none';
+  if (!name || !username || !pin) { errEl.textContent = 'All fields required'; errEl.style.display='block'; return; }
+  if (pin.length < 4) { errEl.textContent = 'PIN must be at least 4 digits'; errEl.style.display='block'; return; }
+  try {
+    const r = await fetch(`${BASE}/api/auth/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, pin, name})});
+    if (!r.ok) { const d = await r.json(); errEl.textContent = d.detail || 'Registration failed'; errEl.style.display='block'; return; }
+    const data = await r.json();
+    // Auto login after register
+    const r2 = await fetch(`${BASE}/api/auth/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username, pin})});
+    const data2 = await r2.json();
+    loginSuccess(data2);
+  } catch(e) {
+    errEl.textContent = 'Cannot reach server'; errEl.style.display = 'block';
+  }
+}
+
+function loginSuccess(data) {
+  currentUser = data;
+  localStorage.setItem('uid', data.uid);
+  localStorage.setItem('username', data.username);
+  localStorage.setItem('userName', data.name);
+
+  // Hide auth, show app
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+
+  // Show username in sidebar
+  const nameEl = document.querySelector('.logo-name');
+  if (nameEl) nameEl.textContent = data.name || data.username;
+
+  // Add logout button to sidebar
+  const agentBox = document.getElementById('agentStatusBox');
+  if (agentBox && !document.getElementById('logoutBtn')) {
+    const lb = document.createElement('div');
+    lb.id = 'logoutBtn';
+    lb.style = 'margin:8px 12px 0;padding:8px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:12px;color:var(--muted);text-align:center;';
+    lb.textContent = `👤 ${data.username}  ·  Sign out`;
+    lb.onclick = logout;
+    agentBox.parentNode.insertBefore(lb, agentBox.nextSibling);
+  }
+
+  // Pre-fill profile from saved data
+  const profile = data.profile || {};
+  if (profile.name) { const el = document.getElementById('cfg-name'); if(el) el.value = profile.name; }
+  if (profile.title) { const el = document.getElementById('cfg-title'); if(el) el.value = profile.title; }
+  if (profile.bio) { const el = document.getElementById('cfg-bio'); if(el) el.value = profile.bio; }
+  if (profile.experience_years) { const el = document.getElementById('cfg-exp'); if(el) el.value = profile.experience_years; }
+  if (profile.target_roles) { const el = document.getElementById('cfg-roles'); if(el) el.value = profile.target_roles; }
+  if (profile.location) { const el = document.getElementById('cfg-location'); if(el) el.value = profile.location; }
+  if (profile.salary_min) { const el = document.getElementById('cfg-salary'); if(el) el.value = profile.salary_min; }
+  if (profile.visa_status) { const el = document.getElementById('cfg-visa'); if(el) el.value = profile.visa_status; }
+  if (profile.keywords) { const el = document.getElementById('cfg-keywords'); if(el) el.value = profile.keywords; }
+
+  // Also pre-fill resume name
+  const rname = document.getElementById('r-name');
+  if (rname) rname.value = data.name || '';
+
+  loadSponsors();
+}
+
+function logout() {
+  localStorage.removeItem('uid');
+  localStorage.removeItem('username');
+  localStorage.removeItem('userName');
+  currentUser = null;
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginPin').value = '';
+  showLogin();
+}
+
+// Auto-login if uid saved
+async function autoLogin() {
+  const uid = localStorage.getItem('uid');
+  if (!uid) { document.getElementById('authScreen').style.display = 'flex'; return; }
+  try {
+    const r = await fetch(`${BASE}/api/auth/me`, {headers: {'x-user-id': uid}});
+    if (r.ok) {
+      const data = await r.json();
+      loginSuccess(data);
+    } else {
+      localStorage.removeItem('uid');
+      document.getElementById('authScreen').style.display = 'flex';
+    }
+  } catch(e) {
+    document.getElementById('authScreen').style.display = 'flex';
+  }
+}
+
+// Override API calls to use dynamic base URL and auth headers
+const _origFetch = window.fetch.bind(window);
+window.fetch = function(url, opts = {}) {
+  if (typeof url === 'string' && url.startsWith('http://localhost:8000/api')) {
+    url = url.replace('http://localhost:8000', BASE);
+    opts.headers = {...(opts.headers || {}), ...(localStorage.getItem('uid') ? {'x-user-id': localStorage.getItem('uid')} : {})};
+  }
+  return _origFetch(url, opts);
+};
+
+// Override saveConfig to use new profile endpoint
+const _origSaveConfig = window.saveConfig;
+window.saveConfig = async function() {
+  const config = {
+    name: document.getElementById('cfg-name').value,
+    title: document.getElementById('cfg-title').value,
+    bio: document.getElementById('cfg-bio').value,
+    experience_years: parseInt(document.getElementById('cfg-exp').value) || 3,
+    target_roles: document.getElementById('cfg-roles').value,
+    location: document.getElementById('cfg-location').value,
+    salary_min: parseInt(document.getElementById('cfg-salary').value) || 100,
+    visa_status: document.getElementById('cfg-visa').value,
+    sponsorship_filter: document.getElementById('cfg-sponsor').value === 'strict',
+    company_types: [...document.querySelectorAll('#companyTypes .chip.on')].map(c => c.textContent),
+    ats_threshold: parseInt(document.querySelector('input[type=range]').value) || 65,
+    scan_interval_hours: parseInt(document.getElementById('cfg-freq').value) || 24,
+    keywords: document.getElementById('cfg-keywords').value,
+  };
+  try {
+    await fetch(`${BASE}/api/profile`, {method:'POST', headers: getHeaders(), body: JSON.stringify(config)});
+    document.getElementById('agentStatusText').textContent = `Active · ${config.name}`;
+    document.getElementById('nextScanTime').textContent = `Next scan in ${config.scan_interval_hours}h`;
+    toast('✅ Profile saved — agent activated!', 'success');
+  } catch(e) {
+    toast('⚠ Could not save profile', 'error');
+  }
+};
+
+// Start with auth check
+autoLogin();
+</script>

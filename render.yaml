@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: jobhunter-ai
+    runtime: python
+    buildCommand: pip install fastapi "uvicorn[standard]" anthropic httpx beautifulsoup4 apscheduler pydantic python-multipart lxml
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.0
