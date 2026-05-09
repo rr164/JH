@@ -33,8 +33,19 @@ SMTP_USER     = os.environ.get("SMTP_USER", "")
 SMTP_PASS     = os.environ.get("SMTP_PASS", "")
 APP_URL       = os.environ.get("APP_URL", "https://nextjobhunter.onrender.com")
 
-# In-memory OTP store: {email: {otp, expires, uid}}
-otp_store: Dict[str, Dict] = {}
+# Disk-based OTP store (survives server restarts)
+OTP_DIR = DATA_DIR / "otps"; OTP_DIR.mkdir(exist_ok=True)
+
+def save_otp(email: str, data: Dict):
+    (OTP_DIR / f"{hashlib.md5(email.encode()).hexdigest()}.json").write_text(json.dumps(data))
+
+def load_otp(email: str) -> Optional[Dict]:
+    p = OTP_DIR / f"{hashlib.md5(email.encode()).hexdigest()}.json"
+    return json.loads(p.read_text()) if p.exists() else None
+
+def delete_otp(email: str):
+    p = OTP_DIR / f"{hashlib.md5(email.encode()).hexdigest()}.json"
+    if p.exists(): p.unlink()
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 def get_state(uid):
@@ -67,9 +78,15 @@ def auth(x_user_id: Optional[str]=Header(default=None)):
 
 def extract_pdf(data):
     try:
-        import PyPDF2, io
-        return "\n".join(p.extract_text() or "" for p in PyPDF2.PdfReader(io.BytesIO(data)).pages)
-    except Exception as e: logger.warning(f"PDF:{e}"); return ""
+        from pypdf import PdfReader
+        import io
+        return "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(data)).pages)
+    except Exception as e:
+        logger.warning(f"pypdf failed:{e}")
+        try:
+            import PyPDF2, io as io2
+            return "\n".join(p.extract_text() or "" for p in PyPDF2.PdfReader(io2.BytesIO(data)).pages)
+        except Exception as e2: logger.warning(f"PyPDF2 also failed:{e2}"); return ""
 
 def extract_docx(data):
     try:
@@ -224,11 +241,11 @@ async def forgot(req: ForgotReq):
         # Don't reveal if email exists — return ok anyway
         return {"status":"ok","message":"If that email is registered, you'll receive a recovery code."}
     otp = str(secrets.randbelow(900000) + 100000)  # 6-digit OTP
-    otp_store[req.email.lower()] = {
+    save_otp(req.email.lower(), {
         "otp": otp,
         "uid": u["uid"],
         "expires": (datetime.now() + timedelta(minutes=15)).isoformat()
-    }
+    })
     sent = send_email(req.email, "JobHunter AI — Account Recovery Code 🔑",
         email_html(
             "Account Recovery",
@@ -242,10 +259,10 @@ async def forgot(req: ForgotReq):
 
 @app.post("/api/auth/verify-otp")
 async def verify_otp(req: VerifyOTPReq):
-    entry = otp_store.get(req.email.lower())
+    entry = load_otp(req.email.lower())
     if not entry: raise HTTPException(400, "No recovery request found for this email")
     if datetime.now() > datetime.fromisoformat(entry["expires"]):
-        del otp_store[req.email.lower()]
+        delete_otp(req.email.lower())
         raise HTTPException(400, "Recovery code expired. Please request a new one.")
     if entry["otp"] != req.otp.strip(): raise HTTPException(400, "Invalid recovery code")
     u = load_user(entry["uid"])
@@ -253,7 +270,7 @@ async def verify_otp(req: VerifyOTPReq):
 
 @app.post("/api/auth/reset-pin")
 async def reset_pin(req: ResetPINReq):
-    entry = otp_store.get(req.email.lower())
+    entry = load_otp(req.email.lower())
     if not entry: raise HTTPException(400, "No recovery session found")
     if datetime.now() > datetime.fromisoformat(entry["expires"]):
         raise HTTPException(400, "Session expired. Start over.")
@@ -262,7 +279,7 @@ async def reset_pin(req: ResetPINReq):
     u = load_user(entry["uid"])
     u["pin_hash"] = hash_pin(req.new_pin)
     save_user(u)
-    del otp_store[req.email.lower()]
+    delete_otp(req.email.lower())
     send_email(req.email, "JobHunter AI — PIN Reset Successful ✅",
         email_html("PIN Reset Successful", f"Hi {u['name']}, your PIN has been reset successfully. You can now sign in with your new PIN."))
     return {"status":"ok","username":u["username"]}
@@ -305,6 +322,25 @@ async def upload_resume(file: UploadFile=File(...), x_user_id: Optional[str]=Hea
     return {"status":"ok","skills":parsed.get("skills",[]),"roles":parsed.get("target_roles",[]),
             "experience_years":parsed.get("experience_years",3),"summary":parsed.get("summary",""),
             "keyword_count":len(parsed.get("top_keywords",[]))}
+
+@app.get("/api/auth/lookup-username")
+async def lookup_username(email: str):
+    """Let users find their username by email without needing full OTP flow"""
+    u = find_by_email(email.lower().strip())
+    if not u:
+        raise HTTPException(404, "No account found with that email")
+    return {"username": u["username"], "name": u["name"]}
+
+@app.delete("/api/resume")
+async def delete_resume(x_user_id: Optional[str]=Header(default=None)):
+    u = auth(x_user_id)
+    u["resume_text"] = ""
+    u["resume_skills"] = []
+    u["resume_roles"] = []
+    u["resume_keywords"] = []
+    u["resume_parsed"] = {}
+    save_user(u)
+    return {"status": "ok", "message": "Resume deleted"}
 
 # ── pipeline ──────────────────────────────────────────────────────────────────
 @app.post("/api/pipeline")
@@ -370,7 +406,7 @@ async def scrape_generic(url, name, role):
     return jobs
 
 async def ai_enhance(jobs, user):
-    profile = user.get("profile",{}); role = profile.get("target_roles","Software Engineer")
+    profile = user.get("profile",{}); role = profile.get("target_roles","") or "Software Engineer"
     resume_keywords = user.get("resume_keywords",[]); bio = profile.get("bio","")
     candidate = f"Role:{role}. Keywords:{', '.join(resume_keywords[:15])}. Bio:{bio[:200]}"
     try:
@@ -407,7 +443,7 @@ async def run_scan(uid, req):
     state.update({"running":True,"log":[],"jobs":[],"stats":{"scanned":0,"matched":0,"sponsors":0,"applied":state["stats"].get("applied",0)}})
     def log(src,msg,lvl="info"): state["log"].append({"ts":datetime.now().strftime("%H:%M:%S"),"source":src,"message":msg,"level":lvl})
     resume_roles = user.get("resume_roles",[])
-    role = req.query or (resume_roles[0] if resume_roles else profile.get("target_roles","Software Engineer").split(",")[0].strip())
+    role = req.query or (resume_roles[0] if resume_roles else profile.get("target_roles","") or "Software Engineer".split(",")[0].strip())
     log("AGENT",f"🚀 Scanning for: {role}")
     log("AGENT",f"📍 Resume memory: {'✓ Active' if user.get('resume_text') else '✗ Upload resume for better matches'}")
     all_jobs = []
@@ -424,7 +460,9 @@ async def run_scan(uid, req):
     log("AI Engine","🤖 AI scoring + career page discovery...")
     all_jobs = await ai_enhance(all_jobs,user); state["stats"]["scanned"]+=120; log("AI Engine","✓ Smart matching complete","success")
     threshold = profile.get("ats_threshold",65); matched=[j for j in all_jobs if j.get("ats_score",0)>=threshold]
-    if req.sponsorship_only: matched=[j for j in matched if j.get("sponsor",False)]
+    # Show all jobs — label sponsorship status clearly, never hide
+    for j in matched:
+        j["sponsor_label"] = "✅ Sponsors H1-B" if j.get("sponsor") else "❌ No sponsorship info"
     matched.sort(key=lambda x:x.get("ats_score",0),reverse=True); matched=matched[:req.max_results]
     state["jobs"]=matched; state["stats"]["matched"]=len(matched); state["stats"]["sponsors"]=sum(1 for j in matched if j.get("sponsor")); state["running"]=False
     log("AGENT",f"✅ Done — {state['stats']['scanned']} scanned, {len(matched)} matched","success")

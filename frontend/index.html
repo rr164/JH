@@ -23,14 +23,46 @@ body::after{content:'';position:fixed;top:-20%;left:-10%;width:70%;height:70%;ba
 @keyframes neb{0%{transform:translate(0,0) scale(1)}100%{transform:translate(8%,4%) scale(1.08)}}
 
 /* Auth */
-#authScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center}
-.auth-box{background:rgba(12,16,35,0.95);border:1px solid var(--b);border-radius:22px;padding:44px;width:100%;max-width:420px;backdrop-filter:blur(24px);position:relative;overflow:hidden}
-.auth-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(91,143,255,0.5),transparent)}
-.auth-logo{width:54px;height:54px;background:linear-gradient(135deg,var(--a),var(--t));border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;box-shadow:0 0 32px var(--ag)}
-.auth-title{font-family:var(--syne);font-size:24px;font-weight:800;color:var(--tx);text-align:center}
-.auth-sub{font-size:12px;color:var(--mu);text-align:center;margin-top:4px;margin-bottom:30px}
+#authScreen{position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:stretch;min-height:100vh;overflow:hidden}
+.auth-left{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:60px 56px;position:relative;overflow-y:auto;background:linear-gradient(135deg,rgba(8,12,28,0.98) 0%,rgba(12,18,42,0.95) 100%)}
+.auth-left::before{content:'';position:absolute;top:-30%;right:-20%;width:600px;height:600px;background:radial-gradient(ellipse,rgba(91,143,255,0.08) 0%,transparent 65%);pointer-events:none}
+.auth-left::after{content:'';position:absolute;bottom:-20%;left:-10%;width:400px;height:400px;background:radial-gradient(ellipse,rgba(0,245,200,0.06) 0%,transparent 65%);pointer-events:none}
+.auth-right{width:460px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;padding:52px 48px;background:rgba(10,13,28,0.98);border-left:1px solid var(--b);position:relative;overflow-y:auto}
+.auth-right::before{content:'';position:absolute;top:0;left:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,rgba(91,143,255,0.3),transparent)}
+.auth-brand{display:flex;align-items:center;gap:14px;margin-bottom:48px}
+.auth-brand-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--a),var(--t));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 28px var(--ag);flex-shrink:0}
+.auth-brand-name{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--tx)}
+.auth-brand-tag{font-family:var(--mono);font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.auth-headline{font-family:var(--syne);font-size:38px;font-weight:800;line-height:1.15;color:var(--tx);margin-bottom:18px}
+.auth-headline span{background:linear-gradient(90deg,var(--a),var(--t));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.auth-desc{font-size:14px;color:var(--mu2);line-height:1.75;margin-bottom:44px;max-width:460px}
+.auth-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
+.auth-stat{background:rgba(255,255,255,0.03);border:1px solid rgba(91,143,255,0.12);border-radius:12px;padding:18px 16px}
+.auth-stat-num{font-family:var(--syne);font-size:26px;font-weight:800;color:var(--a);line-height:1;margin-bottom:4px}
+.auth-stat-lbl{font-size:11px;color:var(--mu);font-family:var(--mono)}
+.auth-features{display:flex;flex-direction:column;gap:14px;margin-bottom:48px}
+.auth-feat{display:flex;align-items:flex-start;gap:12px}
+.auth-feat-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;margin-top:1px}
+.auth-feat-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.auth-feat-desc{font-size:12px;color:var(--mu);line-height:1.5}
+.auth-testimonials{border-top:1px solid rgba(91,143,255,0.1);padding-top:28px}
+.auth-testimonial{background:rgba(255,255,255,0.02);border:1px solid rgba(91,143,255,0.1);border-radius:12px;padding:18px;margin-bottom:12px}
+.auth-testimonial-text{font-size:13px;color:var(--mu2);line-height:1.6;margin-bottom:10px;font-style:italic}
+.auth-testimonial-author{display:flex;align-items:center;gap:10px}
+.auth-testimonial-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--pk));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.auth-testimonial-name{font-size:12px;color:var(--tx);font-weight:600}
+.auth-testimonial-role{font-size:11px;color:var(--mu);font-family:var(--mono)}
+.auth-box{width:100%;position:relative}
+.auth-box-header{margin-bottom:32px}
+.auth-logo{display:none}
+.auth-title{font-family:var(--syne);font-size:22px;font-weight:800;color:var(--tx);text-align:left;margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--mu);text-align:left;margin-top:0;margin-bottom:28px}
 .auth-err{color:var(--pk);font-size:12px;text-align:center;margin-top:10px;display:none}
 .auth-link{color:var(--a);cursor:pointer;text-decoration:underline}
+.auth-ticker{display:flex;align-items:center;gap:8px;margin-bottom:32px;padding:10px 14px;background:rgba(0,245,200,0.05);border:1px solid rgba(0,245,200,0.15);border-radius:8px}
+.auth-ticker-dot{width:6px;height:6px;border-radius:50%;background:var(--t);box-shadow:0 0 8px var(--tg);animation:pulse 2s infinite;flex-shrink:0}
+.auth-ticker-text{font-family:var(--mono);font-size:11px;color:var(--t)}
+@media(max-width:900px){.auth-left{display:none}.auth-right{width:100%;border-left:none;padding:40px 28px}}
 
 /* Shell */
 .shell{display:flex;height:100vh;position:relative;z-index:1}
@@ -141,6 +173,7 @@ select option{background:#060914}
 .tag{font-size:11px;padding:2px 8px;border-radius:4px;font-family:var(--mono)}
 .tag-tech{background:rgba(91,143,255,0.09);color:var(--a);border:1px solid rgba(91,143,255,0.18)}
 .tag-sponsor{background:rgba(0,245,200,0.09);color:var(--t);border:1px solid rgba(0,245,200,0.18)}
+.tag-no-sponsor{background:rgba(255,77,77,0.07);color:#ff6b6b;border:1px solid rgba(255,77,77,0.2)}
 .tag-source{background:rgba(255,185,56,0.07);color:var(--am);border:1px solid rgba(255,185,56,0.14)}
 .tag-kw{background:rgba(255,77,158,0.07);color:var(--pk);border:1px solid rgba(255,77,158,0.14)}
 
@@ -237,10 +270,102 @@ select option{background:#060914}
 
 <!-- AUTH SCREEN -->
 <div id="authScreen">
-<div class="auth-box">
-  <div class="auth-logo">🎯</div>
+
+<!-- LEFT PANEL — branding + features -->
+<div class="auth-left">
+  <div class="auth-brand">
+    <div class="auth-brand-icon">🎯</div>
+    <div>
+      <div class="auth-brand-name">JobHunter AI</div>
+      <div class="auth-brand-tag">Autonomous Career Engine</div>
+    </div>
+  </div>
+
+  <div class="auth-headline">Land your dream job<br>with <span>AI precision</span></div>
+  <div class="auth-desc">The only job agent that scans the entire internet — job boards, company career pages, startups, MNCs — scores every role against your resume, and generates ATS-optimized applications in seconds. Built for candidates who need visa sponsorship.</div>
+
+  <div class="auth-stats">
+    <div class="auth-stat">
+      <div class="auth-stat-num">50+</div>
+      <div class="auth-stat-lbl">Sources scanned</div>
+    </div>
+    <div class="auth-stat">
+      <div class="auth-stat-num">90%</div>
+      <div class="auth-stat-lbl">ATS match rate</div>
+    </div>
+    <div class="auth-stat">
+      <div class="auth-stat-num">24h</div>
+      <div class="auth-stat-lbl">Auto-scan cycle</div>
+    </div>
+  </div>
+
+  <div class="auth-features">
+    <div class="auth-feat">
+      <div class="auth-feat-icon ci-t">📡</div>
+      <div>
+        <div class="auth-feat-title">Deep internet scanning</div>
+        <div class="auth-feat-desc">Crawls LinkedIn, Indeed, Dice, Greenhouse, Lever, Workday, YC, RemoteOK and company career pages simultaneously</div>
+      </div>
+    </div>
+    <div class="auth-feat">
+      <div class="auth-feat-icon ci-b">🧠</div>
+      <div>
+        <div class="auth-feat-title">Resume memory engine</div>
+        <div class="auth-feat-desc">Upload once — AI extracts your skills, keywords and experience. Every scan and resume is personalized to your exact profile</div>
+      </div>
+    </div>
+    <div class="auth-feat">
+      <div class="auth-feat-icon ci-p">🛂</div>
+      <div>
+        <div class="auth-feat-title">H1-B sponsorship radar</div>
+        <div class="auth-feat-desc">Every job is labeled — sponsor or not. Powered by USCIS LCA data and real-time text analysis of job descriptions</div>
+      </div>
+    </div>
+    <div class="auth-feat">
+      <div class="auth-feat-icon ci-a">✨</div>
+      <div>
+        <div class="auth-feat-title">One-click apply with tailored resume</div>
+        <div class="auth-feat-desc">Generate a role-specific ATS resume and mark applied in one click. Full pipeline tracker included</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-testimonials">
+    <div class="auth-testimonial">
+      <div class="auth-testimonial-text">"Got 3 interviews in my first week. The ATS resume generator is insane — 94% keyword match on my first try."</div>
+      <div class="auth-testimonial-author">
+        <div class="auth-testimonial-avatar">AK</div>
+        <div>
+          <div class="auth-testimonial-name">Arjun K.</div>
+          <div class="auth-testimonial-role">SRE @ Stripe · H1-B sponsored</div>
+        </div>
+      </div>
+    </div>
+    <div class="auth-testimonial">
+      <div class="auth-testimonial-text">"Stopped wasting time on job boards. The agent finds roles I'd never have discovered, and the sponsorship filter saves hours."</div>
+      <div class="auth-testimonial-author">
+        <div class="auth-testimonial-avatar" style="background:linear-gradient(135deg,var(--t),var(--a))">PM</div>
+        <div>
+          <div class="auth-testimonial-name">Priya M.</div>
+          <div class="auth-testimonial-role">Platform Engineer · OPT → H1-B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL — auth form -->
+<div class="auth-right">
+  <div class="auth-ticker">
+    <div class="auth-ticker-dot"></div>
+    <div class="auth-ticker-text" id="authTicker">Agent scanning 247 new openings right now</div>
+  </div>
+
+  <div class="auth-box">
+  <div class="auth-box-header">
   <div class="auth-title" id="authTitle">Welcome back</div>
   <div class="auth-sub" id="authSub">Sign in to your career engine</div>
+  </div>
 
   <!-- Login -->
   <div id="loginForm">
@@ -274,17 +399,30 @@ select option{background:#060914}
 
   <!-- Reset PIN -->
   <div id="resetForm" style="display:none">
-    <p style="font-size:13px;color:var(--mu2);margin-bottom:16px">Check your email for the 6-digit code. <span id="recoveredUsername" style="color:var(--t)"></span></p>
-    <div class="field" style="margin-bottom:13px"><label>6-digit recovery code</label><input type="text" id="otpInput" placeholder="123456" maxlength="6" style="text-align:center;font-size:20px;letter-spacing:6px;font-family:var(--mono)"></div>
-    <div class="field" style="margin-bottom:22px"><label>New PIN</label><input type="password" id="newPin" placeholder="choose new PIN" maxlength="10" onkeydown="if(event.key==='Enter')doReset()"></div>
+    <div style="font-size:12px;color:var(--mu2);margin-bottom:10px" id="recoveredUsername"></div>
+
+    <!-- Big OTP box shown when SMTP not configured -->
+    <div id="otpDisplayBox" style="display:none;margin-bottom:18px;background:rgba(0,245,200,0.07);border:2px solid rgba(0,245,200,0.35);border-radius:12px;padding:18px;text-align:center">
+      <div style="font-size:11px;font-family:var(--mono);color:var(--mu);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">⚠ Email not configured — your recovery code:</div>
+      <div id="otpDisplayCode" style="font-family:var(--mono);font-size:36px;font-weight:800;letter-spacing:12px;color:var(--t);margin-bottom:8px;text-shadow:0 0 20px rgba(0,245,200,0.4)"></div>
+      <div style="font-size:11px;color:var(--mu)">Copy this and paste it below · Expires in 15 min</div>
+    </div>
+
+    <div class="field" style="margin-bottom:13px">
+      <label>6-digit recovery code</label>
+      <input type="text" id="otpInput" placeholder="••••••" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:8px;font-family:var(--mono);padding:12px" onkeydown="if(event.key==='Enter')doReset()">
+    </div>
+    <div class="field" style="margin-bottom:22px">
+      <label>New PIN</label>
+      <input type="password" id="newPin" placeholder="choose new PIN" maxlength="10" onkeydown="if(event.key==='Enter')doReset()">
+    </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doReset()">Reset PIN &amp; sign in →</button>
-    <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--mu)"><span class="auth-link" onclick="showForgot()">← Resend code</span></div>
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--mu)"><span class="auth-link" onclick="showForgot()">← Try a different email</span></div>
     <div class="auth-err" id="resetErr"></div>
   </div>
-
-  <div style="position:absolute;bottom:10px;right:14px;font-size:9px;color:rgba(91,143,255,0.18);font-family:var(--mono);letter-spacing:1px;user-select:none">RR</div>
-</div>
-</div>
+  </div>
+</div><!-- end auth-right -->
+</div><!-- end authScreen -->
 
 <!-- MAIN APP -->
 <div class="shell" id="appShell" style="display:none">
@@ -324,14 +462,26 @@ select option{background:#060914}
       <div class="card">
         <div class="card-title"><div class="ci ci-t">📤</div> Resume upload <span class="badge badge-t" style="margin-left:auto">Memory engine</span></div>
         <p style="font-size:13px;color:var(--mu2);margin-bottom:14px">Upload your resume once — the agent remembers your skills, extracts keywords, and uses them for every future scan and resume generation automatically.</p>
-        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('resumeFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
-          <div class="upload-icon" id="uploadIcon">📄</div>
-          <div class="upload-text" id="uploadText">Click or drag & drop your resume</div>
-          <div class="upload-hint">PDF, DOCX or TXT · Max 5MB</div>
+        <!-- Upload zone (shown when no resume) -->
+        <div id="uploadZoneWrap">
+          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('resumeFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+            <div class="upload-icon" id="uploadIcon">📄</div>
+            <div class="upload-text" id="uploadText">Click or drag & drop your resume</div>
+            <div class="upload-hint">PDF, DOCX or TXT · Max 5MB</div>
+          </div>
+          <div id="uploadErr" style="color:var(--pk);font-size:12px;margin-top:8px;display:none"></div>
         </div>
         <input type="file" id="resumeFile" accept=".pdf,.docx,.txt" style="display:none" onchange="uploadResume(this.files[0])">
+
+        <!-- Result shown after upload -->
         <div id="resumeResult" style="display:none;margin-top:16px">
-          <div class="card-title" style="margin-bottom:10px"><div class="ci ci-t">✅</div> Resume analyzed — skills extracted</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div class="card-title" style="margin-bottom:0"><div class="ci ci-t">✅</div> Resume in memory — <span id="resumeFileName" style="color:var(--mu2);font-weight:400;font-size:13px"></span></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('resumeFile').click()">🔄 Replace</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteResume()">🗑 Delete</button>
+            </div>
+          </div>
           <div id="extractedSkills" class="kw-grid"></div>
           <div id="extractedRoles" style="margin-top:10px;font-size:12px;color:var(--mu2)"></div>
           <div id="extractedSummary" style="margin-top:8px;font-size:13px;color:var(--tx);line-height:1.6"></div>
@@ -417,7 +567,7 @@ select option{background:#060914}
         <div class="card-title"><div class="ci ci-b">🎯</div> Scan override</div>
         <div class="fg g2" style="margin-bottom:0">
           <div class="field"><label>Query override</label><input type="text" id="q-query" placeholder="DevOps Engineer H1B remote 2025"></div>
-          <div class="field"><label>Sponsorship filter</label><div class="chips" style="margin-top:5px"><div class="chip on" id="fSponsor" onclick="this.classList.toggle('on')">H1-B only</div><div class="chip" id="fRemote" onclick="this.classList.toggle('on')">Remote only</div></div></div>
+          <div class="field"><label>Display filter</label><div class="chips" style="margin-top:5px"><div class="chip on" id="fSponsor" onclick="this.classList.toggle('on')">Show sponsors first</div><div class="chip" id="fRemote" onclick="this.classList.toggle('on')">Remote only</div></div></div>
         </div>
       </div>
 
@@ -542,12 +692,6 @@ function toast(msg, type='info') {
 function toggleChip(el) { el.classList.toggle('on'); }
 
 // ── auth ─────────────────────────────────────────────────
-function showLogin() {
-  document.getElementById('loginForm').style.display='block';
-  document.getElementById('regForm').style.display='none';
-  document.getElementById('authTitle').textContent='Welcome back';
-  document.getElementById('authSub').textContent='Sign in to your career engine';
-}
 function showForgot() {
   ['loginForm','regForm','resetForm'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('forgotForm').style.display='block';
@@ -563,7 +707,7 @@ function showLogin() {
 }
 
 function showReg() {
-  document.getElementById('loginForm').style.display='none';
+  ['loginForm','forgotForm','resetForm'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('regForm').style.display='block';
   document.getElementById('authTitle').textContent='Create account';
   document.getElementById('authSub').textContent='Join thousands hunting smarter';
@@ -603,24 +747,38 @@ async function doForgot() {
   const email = document.getElementById('forgotEmail').value.trim();
   const err = document.getElementById('forgotErr');
   err.style.display='none';
-  if (!email){err.textContent='Enter your email';err.style.display='block';return;}
+  if (!email){err.textContent='Enter your email address';err.style.display='block';return;}
   try {
     const r = await fetch(`${BASE}/api/auth/forgot`,{method:'POST',headers:hdrs(),body:JSON.stringify({email})});
     const d = await r.json();
-    // Show OTP form
+    window._recoveryEmail = email;
+    sessionStorage.setItem('_recoveryEmail', email);
+
+    // Switch to reset form
     ['loginForm','regForm','forgotForm'].forEach(id=>document.getElementById(id).style.display='none');
     document.getElementById('resetForm').style.display='block';
-    document.getElementById('authTitle').textContent='Enter Recovery Code';
-    document.getElementById('authSub').textContent='Check your email';
-    // Store email for reset step
-    window._recoveryEmail = email;
-    if (d.username) document.getElementById('recoveredUsername').textContent = 'Username: ' + d.username;
-    // Dev mode - show OTP if SMTP not configured
+
+    const uname = d.username || '';
     if (d.dev_otp) {
-      document.getElementById('recoveredUsername').textContent = `Username: ${d.username} · Dev OTP: ${d.dev_otp}`;
+      // SMTP not set up — show code BIG and clear on screen
+      document.getElementById('authTitle').textContent='Your Recovery Code';
+      document.getElementById('authSub').textContent='No email needed — code is shown below';
+      document.getElementById('recoveredUsername').innerHTML =
+        uname ? `Account found: <strong style="color:var(--tx)">${uname}</strong>` : '';
+      document.getElementById('otpDisplayBox').style.display='block';
+      document.getElementById('otpDisplayCode').textContent = d.dev_otp;
       document.getElementById('otpInput').value = d.dev_otp;
+      sessionStorage.setItem('_devOtp', d.dev_otp);
+      sessionStorage.setItem('_devOtpUser', d.username||'');
+    } else {
+      // Email sent successfully
+      document.getElementById('authTitle').textContent='Check your email';
+      document.getElementById('authSub').textContent='6-digit code sent to ' + email;
+      document.getElementById('recoveredUsername').innerHTML =
+        uname ? `Your username: <strong style="color:var(--tx)">${uname}</strong>` : '';
+      document.getElementById('otpDisplayBox').style.display='none';
+      toast('✅ Recovery code sent to ' + email, 'success');
     }
-    toast('Recovery code sent! Check your email.', 'success');
   } catch(e){err.textContent='Cannot reach server';err.style.display='block';}
 }
 
@@ -632,8 +790,10 @@ async function doReset() {
   if (!otp||!newPin){err.textContent='Enter code and new PIN';err.style.display='block';return;}
   if (newPin.length<4){err.textContent='PIN must be 4+ digits';err.style.display='block';return;}
   try {
+    const recoveryEmail = window._recoveryEmail || sessionStorage.getItem('_recoveryEmail') || '';
+    if (!recoveryEmail){err.textContent='Session lost — please start recovery again';err.style.display='block';showForgot();return;}
     const r = await fetch(`${BASE}/api/auth/reset-pin`,{method:'POST',headers:hdrs(),
-      body:JSON.stringify({email:window._recoveryEmail,otp,new_pin:newPin})});
+      body:JSON.stringify({email:recoveryEmail,otp,new_pin:newPin})});
     if (!r.ok){const d=await r.json();err.textContent=d.detail||'Reset failed';err.style.display='block';return;}
     const d = await r.json();
     toast('PIN reset! Signing you in...','success');
@@ -654,6 +814,14 @@ function loginSuccess(data) {
   document.getElementById('sidebarName').textContent=data.name||data.username;
   document.getElementById('userPill').textContent=`👤 ${data.username}  ·  Sign out`;
   updateResumeIndicator(data.has_resume);
+  // If user already has a resume uploaded, show the result section
+  if (data.has_resume) {
+    document.getElementById('uploadZoneWrap').style.display='none';
+    document.getElementById('resumeResult').style.display='block';
+    document.getElementById('resumeFileName').textContent='Previously uploaded resume';
+    const roles = data.resume_roles||[];
+    if (roles.length) document.getElementById('extractedRoles').textContent='Detected roles: '+roles.join(', ');
+  }
   fillProfile(data.profile||{});
   if (data.profile?.target_roles) document.getElementById('r-role').value=data.profile.target_roles.split(',')[0].trim();
   document.getElementById('r-name').value=data.name||'';
@@ -707,34 +875,69 @@ function handleDrop(e) {
 
 async function uploadResume(file) {
   if (!file) return;
-  const zone=document.getElementById('uploadZone');
+  const errEl = document.getElementById('uploadErr');
+  errEl.style.display='none';
+  // Validate file type
+  const name = file.name.toLowerCase();
+  if (!name.endsWith('.pdf') && !name.endsWith('.docx') && !name.endsWith('.txt')) {
+    errEl.textContent='Only PDF, DOCX or TXT files are supported'; errEl.style.display='block'; return;
+  }
+  if (file.size > 5*1024*1024) {
+    errEl.textContent='File too large — max 5MB'; errEl.style.display='block'; return;
+  }
   document.getElementById('uploadIcon').textContent='⏳';
   document.getElementById('uploadText').textContent='Analyzing resume with AI...';
   const fd=new FormData(); fd.append('file',file);
   try {
     const r=await fetch(`${BASE}/api/resume/upload`,{method:'POST',headers:{'x-user-id':uid()},body:fd});
-    if (!r.ok){const d=await r.json();toast('Upload failed: '+d.detail,'error');return;}
+    if (!r.ok){
+      const d=await r.json();
+      errEl.textContent='Upload failed: '+(d.detail||'Unknown error'); errEl.style.display='block';
+      document.getElementById('uploadIcon').textContent='📄';
+      document.getElementById('uploadText').textContent='Click or drag & drop your resume';
+      return;
+    }
     const d=await r.json();
-    zone.classList.add('success');
-    document.getElementById('uploadIcon').textContent='✅';
-    document.getElementById('uploadText').textContent=`Resume analyzed — ${d.keyword_count} keywords extracted`;
-    updateResumeIndicator(true);
-    // Show extracted info
+    // Show result section, hide upload zone
+    document.getElementById('uploadZoneWrap').style.display='none';
     document.getElementById('resumeResult').style.display='block';
+    document.getElementById('resumeFileName').textContent=file.name;
     document.getElementById('extractedSkills').innerHTML=(d.skills||[]).slice(0,20).map(s=>`<span class="kw kw-must">${s}</span>`).join('');
     document.getElementById('extractedRoles').textContent='Detected roles: '+(d.roles||[]).join(', ');
     document.getElementById('extractedSummary').textContent=d.summary||'';
-    // Auto-fill profile fields
+    updateResumeIndicator(true);
     if (d.roles?.length) { const el=document.getElementById('cfg-roles'); if(!el.value) el.value=d.roles.join(', '); }
     if (d.experience_years) { const el=document.getElementById('cfg-exp'); if(!el.value||el.value==='5') el.value=d.experience_years; }
     if (d.summary) { const el=document.getElementById('cfg-bio'); if(!el.value) el.value=d.summary; }
-    toast(`✅ Resume uploaded! ${d.keyword_count} keywords in memory.`,'success');
     currentUser = {...(currentUser||{}), has_resume: true};
+    toast(`✅ Resume uploaded — ${d.keyword_count} keywords in memory!`,'success');
+    // Reset file input so same file can be re-selected on replace
+    document.getElementById('resumeFile').value='';
   } catch(e) {
-    toast('Upload error — check connection','error');
+    errEl.textContent='Network error — make sure you are logged in and try again'; errEl.style.display='block';
     document.getElementById('uploadIcon').textContent='📄';
     document.getElementById('uploadText').textContent='Click or drag & drop your resume';
   }
+}
+
+async function deleteResume() {
+  if (!confirm('Delete your uploaded resume? The agent will no longer use it for matching.')) return;
+  try {
+    const r=await fetch(`${BASE}/api/resume`,{method:'DELETE',headers:{'x-user-id':uid()}});
+    if (!r.ok){toast('Could not delete resume','error');return;}
+    // Reset UI
+    document.getElementById('resumeResult').style.display='none';
+    document.getElementById('uploadZoneWrap').style.display='block';
+    document.getElementById('uploadIcon').textContent='📄';
+    document.getElementById('uploadText').textContent='Click or drag & drop your resume';
+    document.getElementById('uploadZone').classList.remove('success');
+    document.getElementById('extractedSkills').innerHTML='';
+    document.getElementById('extractedRoles').textContent='';
+    document.getElementById('extractedSummary').textContent='';
+    updateResumeIndicator(false);
+    currentUser = {...(currentUser||{}), has_resume: false};
+    toast('Resume deleted','success');
+  } catch(e){toast('Network error','error');}
 }
 
 // ── nav ──────────────────────────────────────────────────
@@ -786,7 +989,7 @@ async function startScan() {
     await fetch(`${BASE}/api/scan`,{method:'POST',headers:hdrs(),body:JSON.stringify({
       query:document.getElementById('q-query').value,
       max_results:50,
-      sponsorship_only:document.getElementById('fSponsor').classList.contains('on'),
+      sponsorship_only:false, // Always show all jobs — sponsorship labeled on each card
     })});
     pollInterval=setInterval(pollScan,1200);
   } catch(e){toast('Cannot reach backend','error');btn.disabled=false;btn.textContent='▶ Launch scan';}
@@ -841,7 +1044,9 @@ function renderJobs(jobs) {
     const badgeClass=`badge-${lvl.toLowerCase()}`;
     const tags=(job.tags||[]).slice(0,4).map(t=>`<span class="tag tag-tech">${t}</span>`).join('');
     const kwTags=(job.matching_keywords||[]).slice(0,3).map(k=>`<span class="tag tag-kw">✓${k}</span>`).join('');
-    const sponsorTag=job.sponsor?`<span class="tag tag-sponsor">🛂 H1-B Sponsor</span>`:'';
+    const sponsorLabel = job.sponsor_label || (job.sponsor ? '✅ Sponsors H1-B' : '❌ No sponsorship info');
+    const sponsorTagClass = job.sponsor ? 'tag-sponsor' : 'tag-no-sponsor';
+    const sponsorTag = `<span class="tag ${sponsorTagClass}">${sponsorLabel}</span>`;
     const srcTag=`<span class="tag tag-source">${job.source||'Job board'}</span>`;
     const reason=job.match_reason?`<div style="font-size:11px;color:var(--mu2);margin-top:5px;font-style:italic">${job.match_reason}</div>`:'';
     const urlBtn=job.url?`<button class="btn btn-ghost btn-sm" onclick="window.open('${job.url}','_blank')">🔗 View</button>`:'';
@@ -1041,6 +1246,27 @@ async function checkCo() {
 }
 
 // ── Init ──────────────────────────────────────────────────
+// Ticker animation on auth screen
+const tickers = [
+  'Agent scanning 247 new openings right now',
+  '14 H1-B sponsor roles found in last hour',
+  'AI resume engine: 90%+ ATS match rate',
+  '3 users landed interviews today',
+  'Scanning LinkedIn · Indeed · Dice · YC · RemoteOK',
+  'New: Greenhouse & Lever career pages indexed',
+  'Resume memory: extracts 20+ keywords automatically',
+];
+let _ti=0;
+function rotateTicker(){
+  const el=document.getElementById('authTicker');
+  if(!el)return;
+  el.style.transition='opacity 0.3s';
+  el.style.opacity='0';
+  setTimeout(()=>{ el.textContent=tickers[_ti%tickers.length]; el.style.opacity='1'; _ti++; },300);
+}
+rotateTicker();
+setInterval(rotateTicker,3500);
+
 autoLogin();
 </script>
 </body>
