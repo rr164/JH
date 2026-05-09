@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobHunter AI — Autonomous Career Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Root ─────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep:     #03040a;
+  --bg-mid:      #060914;
+  --bg-card:     rgba(12, 16, 35, 0.7);
+  --bg-glass:    rgba(255,255,255,0.03);
+  --border:      rgba(99,149,255,0.12);
+  --border-hi:   rgba(99,149,255,0.35);
+  --accent:      #5b8fff;
+  --accent-glow: rgba(91,143,255,0.4);
+  --teal:        #00f5c8;
+  --teal-glow:   rgba(0,245,200,0.3);
+  --pink:        #ff4d9e;
+  --pink-glow:   rgba(255,77,158,0.3);
+  --amber:       #ffb938;
+  --text:        #dce8ff;
+  --muted:       #5a6a8a;
+  --muted2:      #7a8aaa;
+  --syne:        'Syne', sans-serif;
+  --mono:        'JetBrains Mono', monospace;
+  --body:        'Instrument Sans', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Animated grid background ─────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(91,143,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,143,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: -30%;
+  left: -20%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(ellipse, rgba(91,143,255,0.06) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  animation: nebula 20s ease-in-out infinite alternate;
+}
+
+@keyframes nebula {
+  0%   { transform: translate(0,0) scale(1); }
+  100% { transform: translate(10%,5%) scale(1.1); }
+}
+
+/* ── Layout shell ─────────────────────────────────────── */
+.shell { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+/* ── Sidebar ──────────────────────────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: rgba(6,9,20,0.85);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 10;
+}
+
+.logo-wrap {
+  padding: 0 20px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--teal));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.logo-name {
+  font-family: var(--syne);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.logo-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 2px;
+}
+
+.nav { padding: 20px 12px; flex: 1; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted2);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  position: relative;
+}
+
+.nav-item .nav-icon { font-size: 15px; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: rgba(91,143,255,0.15);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.nav-item:hover { color: var(--text); background: var(--bg-glass); }
+
+.nav-item.active {
+  color: var(--accent);
+  background: rgba(91,143,255,0.08);
+  border-color: rgba(91,143,255,0.2);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 60%;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.nav-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 12px 6px;
+}
+
+.agent-status {
+  margin: 12px;
+  padding: 12px;
+  background: rgba(0,245,200,0.05);
+  border: 1px solid rgba(0,245,200,0.15);
+  border-radius: 10px;
+}
+
+.agent-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 8px var(--teal-glow);
+  animation: pulse 2s infinite;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.agent-status-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--teal);
+}
+
+.next-scan-time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Main content ─────────────────────────────────────── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.panel { display: none; animation: fadeIn 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* ── Page header ──────────────────────────────────────── */
+.page-header {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-family: var(--syne);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.page-title span {
+  background: linear-gradient(90deg, var(--accent), var(--teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-sub { font-size: 13px; color: var(--muted2); margin-top: 4px; }
+
+/* ── Cards ────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(91,143,255,0.3), transparent);
+}
+
+.card:hover { border-color: var(--border-hi); }
+
+.card-title {
+  font-family: var(--syne);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title .icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+.icon-blue { background: rgba(91,143,255,0.15); }
+.icon-teal { background: rgba(0,245,200,0.1); }
+.icon-pink { background: rgba(255,77,158,0.1); }
+.icon-amber { background: rgba(255,185,56,0.1); }
+
+/* ── Form elements ────────────────────────────────────── */
+.form-grid { display: grid; gap: 14px; margin-bottom: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g1 { grid-template-columns: 1fr; }
+
+.field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+input[type=text], input[type=number], input[type=email],
+textarea, select {
+  width: 100%;
+  background: rgba(6,9,20,0.8);
+  border: 1px solid rgba(91,143,255,0.15);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 13px;
+  padding: 9px 13px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: rgba(91,143,255,0.5);
+  box-shadow: 0 0 0 3px rgba(91,143,255,0.08);
+}
+
+textarea { resize: vertical; min-height: 90px; }
+select option { background: #060914; }
+
+/* ── Chips / toggles ──────────────────────────────────── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+.chip {
+  padding: 5px 13px;
+  border-radius: 20px;
+  border: 1px solid rgba(91,143,255,0.2);
+  background: rgba(91,143,255,0.05);
+  color: var(--muted2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.chip.on {
+  background: rgba(91,143,255,0.12);
+  border-color: rgba(91,143,255,0.4);
+  color: var(--accent);
+  box-shadow: 0 0 8px rgba(91,143,255,0.15);
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn {
+  padding: 10px 22px;
+  border-radius: 9px;
+  border: none;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #4070ff);
+  color: white;
+  box-shadow: 0 4px 16px rgba(91,143,255,0.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(91,143,255,0.45); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-teal {
+  background: rgba(0,245,200,0.1);
+  color: var(--teal);
+  border: 1px solid rgba(0,245,200,0.25);
+}
+.btn-teal:hover { background: rgba(0,245,200,0.18); box-shadow: 0 0 20px var(--teal-glow); }
+
+.btn-ghost {
+  background: rgba(255,255,255,0.04);
+  color: var(--muted2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border-hi); color: var(--text); }
+
+.btn-danger {
+  background: rgba(255,77,77,0.1);
+  color: #ff6b6b;
+  border: 1px solid rgba(255,77,77,0.2);
+}
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+/* ── Stats row ────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  border-radius: 2px;
+}
+
+.stat-card.blue::after { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.stat-card.teal::after { background: linear-gradient(90deg, transparent, var(--teal), transparent); }
+.stat-card.pink::after { background: linear-gradient(90deg, transparent, var(--pink), transparent); }
+.stat-card.amber::after { background: linear-gradient(90deg, transparent, var(--amber), transparent); }
+
+.stat-num {
+  font-family: var(--syne);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-card.blue .stat-num { color: var(--accent); }
+.stat-card.teal .stat-num { color: var(--teal); }
+.stat-card.pink .stat-num { color: var(--pink); }
+.stat-card.amber .stat-num { color: var(--amber); }
+
+.stat-lbl { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+/* ── Scan Log ─────────────────────────────────────────── */
+.log-container {
+  background: rgba(3,4,10,0.9);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: var(--mono);
+  font-size: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.log-entry {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(91,143,255,0.05);
+  animation: logFade 0.4s ease;
+}
+
+@keyframes logFade { from{opacity:0;transform:translateX(-4px)} to{opacity:1;transform:none} }
+
+.log-ts { color: var(--muted); min-width: 60px; }
+.log-src { color: var(--accent); min-width: 140px; }
+.log-msg { color: var(--muted2); flex: 1; }
+.log-msg.success { color: var(--teal); }
+.log-msg.warn { color: var(--amber); }
+.log-msg.error { color: var(--pink); }
+
+/* ── Job cards ────────────────────────────────────────── */
+.job-list { display: flex; flex-direction: column; gap: 10px; }
+
+.job-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.job-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.job-card:hover { border-color: rgba(91,143,255,0.3); transform: translateX(3px); }
+.job-card:hover::before { background: var(--accent); }
+.job-card.selected { border-color: var(--accent); background: rgba(91,143,255,0.06); }
+.job-card.selected::before { background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+
+.job-body { flex: 1; min-width: 0; }
+.job-title { font-family: var(--syne); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.job-meta { font-size: 12px; color: var(--muted2); }
+.job-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+.tag {
+  font-size: 11px; padding: 2px 9px; border-radius: 4px;
+  font-family: var(--mono);
+}
+.tag-tech { background: rgba(91,143,255,0.1); color: var(--accent); border: 1px solid rgba(91,143,255,0.2); }
+.tag-sponsor { background: rgba(0,245,200,0.1); color: var(--teal); border: 1px solid rgba(0,245,200,0.2); }
+.tag-source { background: rgba(255,185,56,0.08); color: var(--amber); border: 1px solid rgba(255,185,56,0.15); }
+
+.job-score-wrap { text-align: right; min-width: 64px; }
+.job-score {
+  font-family: var(--syne);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+.score-high { color: var(--teal); }
+.score-mid  { color: var(--accent); }
+.score-low  { color: var(--amber); }
+.job-score-label { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+
+/* ── Progress bar ─────────────────────────────────────── */
+.progress {
+  height: 3px; background: rgba(91,143,255,0.1);
+  border-radius: 2px; margin: 8px 0; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--teal));
+  transition: width 1.2s cubic-bezier(.22,1,.36,1);
+}
+
+/* ── Resume output ────────────────────────────────────── */
+.resume-output {
+  background: rgba(3,4,10,0.9);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.9;
+  min-height: 200px;
+  position: relative;
+}
+
+.resume-cursor::after {
+  content: '▌';
+  color: var(--accent);
+  animation: blink 0.7s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+/* ── Keyword chips ────────────────────────────────────── */
+.kw-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.kw { font-family: var(--mono); font-size: 11px; padding: 4px 11px; border-radius: 5px; }
+.kw-must { background: rgba(0,245,200,0.08); color: var(--teal); border: 1px solid rgba(0,245,200,0.18); }
+.kw-nice { background: rgba(91,143,255,0.08); color: var(--accent); border: 1px solid rgba(91,143,255,0.18); }
+.kw-verb { background: rgba(255,185,56,0.08); color: var(--amber); border: 1px solid rgba(255,185,56,0.15); }
+
+/* ── Score ring ───────────────────────────────────────── */
+.score-ring-wrap { display: flex; align-items: center; gap: 20px; }
+.score-ring-num {
+  font-family: var(--syne);
+  font-size: 42px;
+  font-weight: 800;
+}
+.score-ring-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Badge ────────────────────────────────────────────── */
+.badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+.badge-blue { background: rgba(91,143,255,0.12); color: var(--accent); border: 1px solid rgba(91,143,255,0.25); }
+.badge-teal { background: rgba(0,245,200,0.1); color: var(--teal); border: 1px solid rgba(0,245,200,0.2); }
+.badge-pink { background: rgba(255,77,158,0.1); color: var(--pink); border: 1px solid rgba(255,77,158,0.2); }
+
+/* ── Sponsor list ─────────────────────────────────────── */
+.sponsor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sponsor-pill {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(0,245,200,0.06);
+  border: 1px solid rgba(0,245,200,0.15);
+  color: var(--teal);
+  font-family: var(--mono);
+}
+
+/* ── Slider ───────────────────────────────────────────── */
+.slider-wrap label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.slider-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.slider-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.slider-val { font-family: var(--mono); font-size: 13px; color: var(--accent); min-width: 40px; }
+
+/* ── Scanning animation ───────────────────────────────── */
+.scan-radar {
+  display: none;
+  width: 120px; height: 120px;
+  position: relative;
+  margin: 0 auto 20px;
+}
+.scan-radar.show { display: block; }
+.radar-ring {
+  position: absolute;
+  border: 1px solid rgba(0,245,200,0.3);
+  border-radius: 50%;
+  animation: radarExpand 2s ease-out infinite;
+}
+.radar-ring:nth-child(2) { animation-delay: 0.7s; }
+.radar-ring:nth-child(3) { animation-delay: 1.4s; }
+@keyframes radarExpand {
+  0%   { width:10px;height:10px;opacity:1;top:55px;left:55px; }
+  100% { width:120px;height:120px;opacity:0;top:0;left:0; }
+}
+.radar-center {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--teal);
+  border-radius: 50%;
+  top: 52px; left: 52px;
+  box-shadow: 0 0 20px var(--teal-glow);
+}
+
+/* ── Divider ──────────────────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── Two col layout ───────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+/* ── Scrollbar ────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(91,143,255,0.2); border-radius: 3px; }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .g2, .g3, .two-col { grid-template-columns: 1fr; }
+}
+
+/* ── Notification toast ───────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: rgba(12,16,35,0.95);
+  border: 1px solid var(--border-hi);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 9999;
+  backdrop-filter: blur(20px);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s;
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(0,245,200,0.4); }
+.toast.error { border-color: rgba(255,77,77,0.4); }
+
+/* ── Tracker pipeline ─────────────────────────────────── */
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.pipeline-col {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.pipeline-header {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pipeline-count {
+  background: var(--bg-glass);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.pipeline-card {
+  background: rgba(6,9,20,0.6);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.pipeline-card .p-title { color: var(--text); font-weight: 500; margin-bottom: 2px; }
+.pipeline-card .p-co { color: var(--muted); font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="logo-wrap">
+      <div class="logo-icon">🎯</div>
+      <div class="logo-name">JobHunter AI</div>
+      <div class="logo-sub">Autonomous Career Engine</div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-section-label">Agent</div>
+      <div class="nav-item active" onclick="showPanel('setup')">
+        <span class="nav-icon">⚙</span> Setup
+      </div>
+      <div class="nav-item" onclick="showPanel('scan')">
+        <span class="nav-icon">📡</span> Live Scan
+        <span class="nav-badge" id="navBadge">0</span>
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px">Tools</div>
+      <div class="nav-item" onclick="showPanel('resume')">
+        <span class="nav-icon">📄</span> ATS Resume
+      </div>
+      <div class="nav-item" onclick="showPanel('tracker')">
+        <span class="nav-icon">📊</span> Tracker
+      </div>
+      <div class="nav-item" onclick="showPanel('sponsors')">
+        <span class="nav-icon">🛂</span> Sponsors DB
+      </div>
+    </div>
+
+    <div class="agent-status" id="agentStatusBox">
+      <span class="agent-status-dot"></span>
+      <span class="agent-status-text" id="agentStatusText">Agent standby</span>
+      <div class="next-scan-time" id="nextScanTime">Configure to activate</div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── SETUP PANEL ── -->
+    <div class="panel active" id="panel-setup">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Agent <span>Configuration</span></div>
+          <div class="page-sub">Set once. Hunt forever. Your 24/7 career engine.</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveConfig()">💾 Save & activate</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon icon-blue">👤</div> Your identity</div>
+        <div class="form-grid g2">
+          <div class="field"><label>Full name</label><input type="text" id="cfg-name" placeholder="e.g. Rahul Ravula"></div>
+          <div class="field"><label>Current / target title</label><input type="text" id="cfg-title" placeholder="e.g. DevOps / Cloud / SRE Engineer"></div>
+        </div>
+        <div class="form-grid g1">
+          <div class="field"><label>Your skills, experience, achievements (the richer the better)</label>
+          <textarea id="cfg-bio" rows="4" placeholder="5+ years in DevOps at Cisco, Fiserv, HCL. Expert in Kubernetes, Terraform, AWS, Azure, GCP, Kafka, Prometheus, Splunk, Jenkins, Ansible, Helm, ArgoCD, Python, Go. Led migration of 200+ microservices to EKS. Reduced infra costs by 40%. CKA, AWS-SAA certified..."></textarea></div>
+        </div>
+        <div class="form-grid g3">
+          <div class="field"><label>Years of experience</label><input type="number" id="cfg-exp" value="5" min="0" max="40"></div>
+          <div class="field"><label>Target salary ($k/yr)</label><input type="number" id="cfg-salary" value="145" min="50" max="500"></div>
+          <div class="field"><label>Work mode</label>
+            <select id="cfg-work">
+              <option>Remote</option><option>Hybrid</option><option>On-site</option><option>Any</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon icon-teal">🔍</div> Hunt targets</div>
+        <div class="form-grid g1">
+          <div class="field"><label>Target roles (comma-separated)</label>
+          <input type="text" id="cfg-roles" placeholder="DevOps Engineer, SRE, Platform Engineer, Cloud Architect, Security Engineer"></div>
+        </div>
+        <div class="form-grid g2">
+          <div class="field"><label>Location / region</label><input type="text" id="cfg-location" placeholder="USA, Remote, New York, San Francisco"></div>
+          <div class="field">
+            <div class="slider-wrap">
+              <label>ATS match threshold</label>
+              <div class="slider-row">
+                <input type="range" min="40" max="95" value="65" step="1" oninput="document.getElementById('ats-v').textContent=this.value+'%'">
+                <span class="slider-val" id="ats-v">65%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label>Company types</label>
+          <div class="chip-group" id="companyTypes">
+            <div class="chip on" onclick="toggleChip(this)">Startup</div>
+            <div class="chip on" onclick="toggleChip(this)">Mid-size</div>
+            <div class="chip on" onclick="toggleChip(this)">Enterprise</div>
+            <div class="chip on" onclick="toggleChip(this)">MNC</div>
+            <div class="chip on" onclick="toggleChip(this)">FAANG</div>
+            <div class="chip on" onclick="toggleChip(this)">Fintech</div>
+            <div class="chip on" onclick="toggleChip(this)">Healthtech</div>
+            <div class="chip on" onclick="toggleChip(this)">AI / ML</div>
+            <div class="chip" onclick="toggleChip(this)">Govt / Defense</div>
+            <div class="chip on" onclick="toggleChip(this)">YC-backed</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon icon-pink">🛂</div> Visa & sponsorship</div>
+        <div class="form-grid g2">
+          <div class="field"><label>Visa status</label>
+            <select id="cfg-visa">
+              <option>Requires H1-B sponsorship</option>
+              <option>OPT / STEM OPT</option>
+              <option>Green Card</option>
+              <option>US Citizen / PR</option>
+              <option>TN Visa</option>
+              <option>L1 Transfer needed</option>
+              <option>E-3 (Australia)</option>
+            </select>
+          </div>
+          <div class="field"><label>Sponsorship filter</label>
+            <select id="cfg-sponsor">
+              <option value="strict">Only H1-B sponsors</option>
+              <option value="prefer">Prefer sponsors, show all</option>
+              <option value="off">No filter</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Detect sponsorship via these signals</label>
+          <div class="chip-group">
+            <div class="chip on" onclick="toggleChip(this)">will sponsor</div>
+            <div class="chip on" onclick="toggleChip(this)">visa sponsorship</div>
+            <div class="chip on" onclick="toggleChip(this)">H1B / H-1B</div>
+            <div class="chip on" onclick="toggleChip(this)">immigration assistance</div>
+            <div class="chip on" onclick="toggleChip(this)">work authorization</div>
+            <div class="chip on" onclick="toggleChip(this)">cap-exempt</div>
+            <div class="chip on" onclick="toggleChip(this)">OPT eligible</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="icon icon-amber">⏰</div> Scan schedule</div>
+        <div class="form-grid g3">
+          <div class="field"><label>Auto-scan every</label>
+            <select id="cfg-freq">
+              <option value="24">Every 24 hours</option>
+              <option value="12">Every 12 hours</option>
+              <option value="6">Every 6 hours</option>
+              <option value="1">Every hour</option>
+              <option value="0">Manual only</option>
+            </select>
+          </div>
+          <div class="field"><label>Max jobs per scan</label><input type="number" id="cfg-max" value="50" min="10" max="200"></div>
+          <div class="field"><label>Sources to scan</label>
+            <select id="cfg-sources">
+              <option>All sources (recommended)</option>
+              <option>Job boards only</option>
+              <option>Career pages only</option>
+              <option>Remote only</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label>Additional keywords to inject into every search</label>
+        <input type="text" id="cfg-keywords" placeholder="e.g. Kubernetes, Terraform, AWS, Python, CI/CD"></div>
+      </div>
+    </div>
+
+    <!-- ── SCAN PANEL ── -->
+    <div class="panel" id="panel-scan">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Deep <span>Internet Scan</span></div>
+          <div class="page-sub">Crawls job boards, career pages, company sites, HN, YC, RemoteOK & more</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="clearScan()">✕ Clear</button>
+          <button class="btn btn-primary" id="scanBtn" onclick="startScan()">▶ Launch scan</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card blue"><div class="stat-num" id="s-scanned">0</div><div class="stat-lbl">Pages crawled</div></div>
+        <div class="stat-card teal"><div class="stat-num" id="s-matched">0</div><div class="stat-lbl">ATS matched</div></div>
+        <div class="stat-card pink"><div class="stat-num" id="s-sponsors">0</div><div class="stat-lbl">Sponsors found</div></div>
+        <div class="stat-card amber"><div class="stat-num" id="s-applied">0</div><div class="stat-lbl">Applied</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-title"><div class="icon icon-blue">🎯</div> Scan override</div>
+        <div class="form-grid g2">
+          <div class="field"><label>Search query (override)</label><input type="text" id="q-query" placeholder="DevOps Engineer H1B sponsor remote 2025"></div>
+          <div class="field"><label>Focus source</label>
+            <select id="q-source">
+              <option>All sources</option>
+              <option>Job boards (LinkedIn, Indeed, Dice)</option>
+              <option>Career pages (Greenhouse, Lever, Workday)</option>
+              <option>Remote (RemoteOK, Wellfound, Builtin)</option>
+              <option>Startup (YC, AngelList)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid g2" style="margin-bottom:0">
+          <div class="field">
+            <label>Sponsorship filter</label>
+            <div class="chip-group">
+              <div class="chip on" id="filterSponsor" onclick="this.classList.toggle('on')">H1-B only</div>
+              <div class="chip" id="filterRemote" onclick="this.classList.toggle('on')">Remote only</div>
+              <div class="chip" id="filterNew" onclick="this.classList.toggle('on')">Last 7 days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="radarCard" style="display:none;text-align:center;padding:30px">
+        <div class="scan-radar show">
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-ring"></div>
+          <div class="radar-center"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--teal);margin-top:8px" id="scanStatusMsg">Initializing scan...</div>
+      </div>
+
+      <div class="card" id="logCard" style="display:none">
+        <div class="card-title"><div class="icon icon-teal">📡</div> Live crawl log</div>
+        <div class="log-container" id="logContainer"></div>
+      </div>
+
+      <div id="resultsSection" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">
+            Scan results
+          </div>
+          <div style="display:flex;gap:6px">
+            <span class="badge badge-teal" id="resBadgeSponsor">0 sponsors</span>
+            <span class="badge badge-blue" id="resBadgeMatch">0 matched</span>
+          </div>
+        </div>
+        <div class="job-list" id="jobList"></div>
+      </div>
+    </div>
+
+    <!-- ── RESUME PANEL ── -->
+    <div class="panel" id="panel-resume">
+      <div class="page-header">
+        <div>
+          <div class="page-title">ATS <span>Resume Engine</span></div>
+          <div class="page-sub">AI-tailored, keyword-matched, ATS-optimized resumes in seconds</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:18px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title"><div class="icon icon-blue">📋</div> Job description</div>
+          <textarea id="r-jd" rows="8" placeholder="Paste the full job description here. The AI will extract every keyword and optimize your resume to beat the ATS parser..."></textarea>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title"><div class="icon icon-teal">🧠</div> Your experience</div>
+          <textarea id="r-exp" rows="8" placeholder="Paste your base resume, key bullet points, or skills. The AI will enhance it to match the JD..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-grid g3" style="margin-bottom:0">
+          <div class="field"><label>Target role</label><input type="text" id="r-role" placeholder="Senior DevOps Engineer"></div>
+          <div class="field"><label>Company</label><input type="text" id="r-company" placeholder="Stripe, Google, JPMorgan..."></div>
+          <div class="field"><label>Your name</label><input type="text" id="r-name" placeholder="Full Name"></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="generateResume()">✨ Generate ATS resume</button>
+          <button class="btn btn-teal" onclick="extractKeywords()">🔑 Extract keywords</button>
+          <button class="btn btn-ghost" onclick="generateCover()">✉ + Cover letter</button>
+        </div>
+      </div>
+
+      <div id="kwCard" style="display:none" class="card">
+        <div class="card-title"><div class="icon icon-amber">🔑</div> Extracted keywords</div>
+        <div class="two-col">
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Must-have</div>
+            <div class="kw-grid" id="kwMust"></div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;margin-top:12px">Nice-to-have</div>
+            <div class="kw-grid" id="kwNice"></div>
+            <div style="margin-top:12px;font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Action verbs</div>
+            <div class="kw-grid" id="kwVerbs"></div>
+          </div>
+          <div>
+            <div style="font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">ATS match estimate</div>
+            <div class="score-ring-wrap">
+              <div>
+                <div class="stat-num score-high" id="kwScore" style="font-size:48px">—</div>
+                <div class="stat-lbl">match score</div>
+              </div>
+              <div style="flex:1">
+                <div class="progress"><div class="progress-fill" id="kwBar" style="width:0%"></div></div>
+                <div style="font-size:12px;color:var(--muted2);margin-top:6px" id="kwMsg"></div>
+                <div style="font-size:12px;color:var(--muted2);margin-top:6px" id="kwSummary"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="resumeCard" style="display:none" class="card">
+        <div class="card-title">
+          <div class="icon icon-teal">📄</div> Generated resume
+          <span class="badge badge-teal" style="margin-left:auto">ATS Optimized</span>
+        </div>
+        <div class="resume-output" id="resumeOut"></div>
+        <div class="actions">
+          <button class="btn btn-teal" onclick="copyResume()">📋 Copy to clipboard</button>
+          <button class="btn btn-ghost" onclick="downloadResume()">⬇ Download .txt</button>
+        </div>
+      </div>
+
+      <div id="coverCard" style="display:none" class="card">
+        <div class="card-title"><div class="icon icon-pink">✉</div> Cover letter</div>
+        <div class="resume-output" id="coverOut"></div>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="copyCover()">📋 Copy cover letter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRACKER PANEL ── -->
+    <div class="panel" id="panel-tracker">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Application <span>Tracker</span></div>
+          <div class="page-sub">Full visibility on your pipeline</div>
+        </div>
+      </div>
+      <div class="pipeline">
+        <div class="pipeline-col">
+          <div class="pipeline-header" style="color:var(--accent)">Applied <span class="pipeline-count" id="pc-applied">0</span></div>
+          <div id="pl-applied"><div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">No applications yet</div></div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-header" style="color:var(--amber)">In Review <span class="pipeline-count" id="pc-review">0</span></div>
+          <div id="pl-review"><div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">None yet</div></div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-header" style="color:var(--teal)">Interview <span class="pipeline-count" id="pc-interview">0</span></div>
+          <div id="pl-interview"><div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">None yet</div></div>
+        </div>
+        <div class="pipeline-col">
+          <div class="pipeline-header" style="color:var(--pink)">Offer 🎉 <span class="pipeline-count" id="pc-offer">0</span></div>
+          <div id="pl-offer"><div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">Incoming...</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="icon icon-blue">📈</div> Scan history</div>
+        <div id="historyList" style="color:var(--muted);font-size:13px">Run your first scan to build history.</div>
+      </div>
+    </div>
+
+    <!-- ── SPONSORS PANEL ── -->
+    <div class="panel" id="panel-sponsors">
+      <div class="page-header">
+        <div>
+          <div class="page-title">H1-B <span>Sponsor Database</span></div>
+          <div class="page-sub">Known high-volume sponsors from USCIS LCA data · Updated annually</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="icon icon-teal">🏢</div> Verified H1-B sponsors</div>
+        <div class="sponsor-grid" id="sponsorGrid">Loading...</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="icon icon-pink">🔍</div> Check a company</div>
+        <div class="form-grid g2" style="margin-bottom:0">
+          <div class="field"><label>Company name</label><input type="text" id="chkCompany" placeholder="e.g. Stripe, Figma, Rippling..."></div>
+          <div style="display:flex;align-items:flex-end">
+            <button class="btn btn-primary" onclick="checkCompany()">Check sponsorship history</button>
+          </div>
+        </div>
+        <div id="chkResult" style="margin-top:14px;display:none"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:8000/api';
+let pipeline = JSON.parse(localStorage.getItem('pipeline') || '{"applied":[],"review":[],"interview":[],"offer":[]}');
+let pollInterval = null;
+
+// ── Navigation ────────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'sponsors') loadSponsors();
+  if (name === 'tracker') renderPipeline();
+}
+
+function toggleChip(el) { el.classList.toggle('on'); }
+
+// ── Toast ─────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ── Config ────────────────────────────────────────────
+async function saveConfig() {
+  const config = {
+    name: document.getElementById('cfg-name').value,
+    title: document.getElementById('cfg-title').value,
+    bio: document.getElementById('cfg-bio').value,
+    experience_years: parseInt(document.getElementById('cfg-exp').value),
+    target_roles: document.getElementById('cfg-roles').value,
+    location: document.getElementById('cfg-location').value,
+    salary_min: parseInt(document.getElementById('cfg-salary').value),
+    visa_status: document.getElementById('cfg-visa').value,
+    sponsorship_filter: document.getElementById('cfg-sponsor').value === 'strict',
+    company_types: [...document.querySelectorAll('#companyTypes .chip.on')].map(c => c.textContent),
+    ats_threshold: parseInt(document.querySelector('input[type=range]').value),
+    scan_interval_hours: parseInt(document.getElementById('cfg-freq').value),
+    keywords: document.getElementById('cfg-keywords').value,
+  };
+  try {
+    const r = await fetch(`${API}/config`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(config) });
+    const d = await r.json();
+    document.getElementById('agentStatusText').textContent = 'Agent active';
+    document.getElementById('nextScanTime').textContent = d.next_scan || '';
+    toast('✅ Agent activated! ' + (d.next_scan ? 'Next scan ' + d.next_scan : ''), 'success');
+  } catch(e) {
+    toast('⚠ Backend not running — see setup instructions', 'error');
+  }
+}
+
+async function loadConfig() {
+  try {
+    const r = await fetch(`${API}/config`);
+    const d = await r.json();
+    if (d.name) {
+      document.getElementById('cfg-name').value = d.name || '';
+      document.getElementById('cfg-title').value = d.title || '';
+      document.getElementById('cfg-bio').value = d.bio || '';
+      document.getElementById('cfg-exp').value = d.experience_years || 5;
+      document.getElementById('cfg-roles').value = d.target_roles || '';
+      document.getElementById('cfg-location').value = d.location || '';
+    }
+  } catch(e) {}
+}
+
+// ── Scan ──────────────────────────────────────────────
+async function startScan() {
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Scanning...';
+
+  document.getElementById('radarCard').style.display = 'block';
+  document.getElementById('logCard').style.display = 'block';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('logContainer').innerHTML = '';
+
+  const sponsorOnly = document.getElementById('filterSponsor').classList.contains('on');
+
+  try {
+    await fetch(`${API}/scan`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        query: document.getElementById('q-query').value,
+        max_results: 50,
+        sponsorship_only: sponsorOnly,
+      })
+    });
+    pollInterval = setInterval(pollScanStatus, 1200);
+  } catch(e) {
+    toast('⚠ Cannot reach backend. Is it running? Run: python backend/main.py', 'error');
+    btn.disabled = false;
+    btn.textContent = '▶ Launch scan';
+  }
+}
+
+async function pollScanStatus() {
+  try {
+    const r = await fetch(`${API}/scan/status`);
+    const d = await r.json();
+
+    // Update stats
+    document.getElementById('s-scanned').textContent = d.stats?.scanned || 0;
+    document.getElementById('s-matched').textContent = d.stats?.matched || 0;
+    document.getElementById('s-sponsors').textContent = d.stats?.sponsors || 0;
+
+    // Render new log lines
+    const container = document.getElementById('logContainer');
+    const existing = container.querySelectorAll('.log-entry').length;
+    const logs = d.log || [];
+    for (let i = existing; i < logs.length; i++) {
+      const e = logs[i];
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `<span class="log-ts">${e.ts}</span><span class="log-src">${e.source}</span><span class="log-msg ${e.level === 'success' ? 'success' : e.level === 'warn' ? 'warn' : ''}">${e.message}</span>`;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Update scan status message
+    if (logs.length > 0) {
+      document.getElementById('scanStatusMsg').textContent = logs[logs.length-1]?.message || '';
+    }
+
+    if (!d.running && d.job_count > 0) {
+      clearInterval(pollInterval);
+      document.getElementById('radarCard').style.display = 'none';
+      const btn = document.getElementById('scanBtn');
+      btn.disabled = false;
+      btn.textContent = '▶ Launch scan';
+      await loadJobs();
+    }
+  } catch(e) {}
+}
+
+async function loadJobs() {
+  try {
+    const r = await fetch(`${API}/jobs`);
+    const d = await r.json();
+    const jobs = d.jobs || [];
+    document.getElementById('navBadge').textContent = jobs.length;
+    document.getElementById('resBadgeSponsor').textContent = jobs.filter(j=>j.sponsor).length + ' sponsors';
+    document.getElementById('resBadgeMatch').textContent = jobs.length + ' matched';
+    renderJobs(jobs);
+    document.getElementById('resultsSection').style.display = 'block';
+    toast(`✅ Found ${jobs.length} matched jobs (${jobs.filter(j=>j.sponsor).length} sponsors)`, 'success');
+  } catch(e) {}
+}
+
+function renderJobs(jobs) {
+  const list = document.getElementById('jobList');
+  list.innerHTML = '';
+  jobs.forEach(job => {
+    const score = job.ats_score || 0;
+    const scoreClass = score >= 80 ? 'score-high' : score >= 65 ? 'score-mid' : 'score-low';
+    const tags = (job.tags || []).slice(0,5).map(t => `<span class="tag tag-tech">${t}</span>`).join('');
+    const sponsorTag = job.sponsor ? `<span class="tag tag-sponsor">🛂 H1-B Sponsor</span>` : '';
+    const srcTag = `<span class="tag tag-source">${job.source || 'Job board'}</span>`;
+    const div = document.createElement('div');
+    div.className = 'job-card';
+    div.innerHTML = `
+      <div class="job-body">
+        <div class="job-title">${job.title}</div>
+        <div class="job-meta">${job.company} · ${job.location}${job.salary ? ' · ' + job.salary : ''}</div>
+        <div class="job-tags">${tags}${sponsorTag}${srcTag}</div>
+      </div>
+      <div class="job-score-wrap">
+        <div class="job-score ${scoreClass}">${score}%</div>
+        <div class="job-score-label">ATS match</div>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
+          <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="selectJob(event, ${JSON.stringify(job).replace(/"/g,'&quot;')})">✨ Tailor resume</button>
+          ${job.url ? `<button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="openJob('${job.url}')">🔗 View job</button>` : ''}
+        </div>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function selectJob(e, job) {
+  e.stopPropagation();
+  document.getElementById('r-role').value = job.title;
+  document.getElementById('r-company').value = job.company;
+  document.getElementById('r-jd').value = `${job.title} at ${job.company}\n\nLocation: ${job.location}\n${job.salary ? 'Salary: ' + job.salary + '\n' : ''}${job.sponsor ? 'We offer H1-B visa sponsorship.\n' : ''}Required skills: ${(job.tags||[]).join(', ')}\n\n${job.description || ''}`;
+  // Switch to resume panel
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-resume').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  toast('Job loaded. Generate your tailored resume! ✨', 'success');
+}
+
+function openJob(url) { if(url) window.open(url, '_blank'); }
+
+function clearScan() {
+  document.getElementById('logContainer').innerHTML = '';
+  document.getElementById('jobList').innerHTML = '';
+  document.getElementById('logCard').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('radarCard').style.display = 'none';
+  document.getElementById('navBadge').textContent = '0';
+}
+
+// ── ATS Keywords ──────────────────────────────────────
+async function extractKeywords() {
+  const jd = document.getElementById('r-jd').value.trim();
+  if (!jd) { toast('Paste a job description first', 'error'); return; }
+  toast('Extracting keywords...');
+  try {
+    const r = await fetch(`${API}/keywords`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({job_description: jd})
+    });
+    const d = await r.json();
+    document.getElementById('kwMust').innerHTML = (d.must_have||[]).map(k=>`<span class="kw kw-must">${k}</span>`).join('');
+    document.getElementById('kwNice').innerHTML = (d.nice_to_have||[]).map(k=>`<span class="kw kw-nice">${k}</span>`).join('');
+    document.getElementById('kwVerbs').innerHTML = (d.action_verbs||[]).map(k=>`<span class="kw kw-verb">${k}</span>`).join('');
+    const sc = d.ats_score_estimate || 70;
+    document.getElementById('kwScore').textContent = sc + '%';
+    document.getElementById('kwBar').style.width = sc + '%';
+    document.getElementById('kwMsg').textContent = sc >= 85 ? '🔥 Excellent — submit immediately' : sc >= 70 ? '✅ Good match — minor tweaks' : '⚠ Needs tailoring';
+    document.getElementById('kwSummary').textContent = d.match_summary || '';
+    document.getElementById('kwCard').style.display = 'block';
+    toast('Keywords extracted ✅', 'success');
+  } catch(e) {
+    toast('Backend offline — see README to start server', 'error');
+  }
+}
+
+// ── Resume generation ─────────────────────────────────
+async function generateResume() {
+  const jd = document.getElementById('r-jd').value.trim();
+  if (!jd) { toast('Paste a job description first', 'error'); return; }
+
+  await extractKeywords();
+
+  const resumeEl = document.getElementById('resumeOut');
+  document.getElementById('resumeCard').style.display = 'block';
+  resumeEl.textContent = '';
+  resumeEl.classList.add('resume-cursor');
+  toast('Generating ATS resume...');
+
+  try {
+    const r = await fetch(`${API}/resume/generate`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        job_description: jd,
+        candidate_bio: document.getElementById('r-exp').value,
+        role: document.getElementById('r-role').value,
+        company: document.getElementById('r-company').value,
+        candidate_name: document.getElementById('r-name').value || document.getElementById('cfg-name').value,
+      })
+    });
+
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream: true});
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const obj = JSON.parse(line.slice(6));
+            if (obj.text) resumeEl.textContent += obj.text;
+            if (obj.done) resumeEl.classList.remove('resume-cursor');
+          } catch(e) {}
+        }
+      }
+    }
+    resumeEl.classList.remove('resume-cursor');
+    toast('Resume generated ✨', 'success');
+  } catch(e) {
+    resumeEl.classList.remove('resume-cursor');
+    toast('Backend offline — start it with: cd backend && uvicorn main:app', 'error');
+  }
+}
+
+async function generateCover() {
+  const jd = document.getElementById('r-jd').value.trim();
+  if (!jd) { toast('Paste a job description first', 'error'); return; }
+  const coverEl = document.getElementById('coverOut');
+  document.getElementById('coverCard').style.display = 'block';
+  coverEl.textContent = '';
+  coverEl.classList.add('resume-cursor');
+
+  try {
+    const r = await fetch(`${API}/resume/generate`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        job_description: jd + '\n\n[Generate ONLY a cover letter, not a resume. 3 paragraphs, confident, specific, under 220 words.]',
+        candidate_bio: document.getElementById('r-exp').value,
+        role: document.getElementById('r-role').value,
+        company: document.getElementById('r-company').value,
+        candidate_name: document.getElementById('r-name').value || document.getElementById('cfg-name').value,
+      })
+    });
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, {stream:true});
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const l of lines) {
+        if (l.startsWith('data: ')) {
+          try { const o = JSON.parse(l.slice(6)); if(o.text) coverEl.textContent += o.text; } catch(e) {}
+        }
+      }
+    }
+    coverEl.classList.remove('resume-cursor');
+    toast('Cover letter ready ✉', 'success');
+  } catch(e) { coverEl.classList.remove('resume-cursor'); }
+}
+
+function copyResume() { navigator.clipboard.writeText(document.getElementById('resumeOut').textContent).then(()=>toast('Copied! ✅','success')); }
+function copyCover() { navigator.clipboard.writeText(document.getElementById('coverOut').textContent).then(()=>toast('Cover letter copied! ✅','success')); }
+function downloadResume() {
+  const text = document.getElementById('resumeOut').textContent;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
+  a.download = 'resume_ats_optimized.txt';
+  a.click();
+}
+
+// ── Sponsors ──────────────────────────────────────────
+async function loadSponsors() {
+  try {
+    const r = await fetch(`${API}/sponsors`);
+    const d = await r.json();
+    document.getElementById('sponsorGrid').innerHTML = (d.sponsors||[]).map(s =>
+      `<span class="sponsor-pill">${s}</span>`
+    ).join('');
+  } catch(e) {
+    document.getElementById('sponsorGrid').innerHTML = '<span style="color:var(--muted)">Backend offline</span>';
+  }
+}
+
+async function checkCompany() {
+  const name = document.getElementById('chkCompany').value.trim();
+  if (!name) return;
+  const el = document.getElementById('chkResult');
+  el.style.display = 'block';
+  el.innerHTML = '<span style="color:var(--muted)">Checking...</span>';
+  try {
+    const r = await fetch(`${API}/sponsors`);
+    const d = await r.json();
+    const match = (d.sponsors||[]).some(s => s.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(s.toLowerCase()));
+    el.innerHTML = match
+      ? `<span style="color:var(--teal);font-family:var(--mono)">✅ ${name} is a known H1-B sponsor (USCIS LCA data)</span>`
+      : `<span style="color:var(--amber);font-family:var(--mono)">⚠ Not in our database. May still sponsor — check directly on myvisajobs.com or H1B Grader.</span>`;
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--muted)">Backend offline</span>';
+  }
+}
+
+// ── Pipeline ──────────────────────────────────────────
+function renderPipeline() {
+  ['applied','review','interview','offer'].forEach(stage => {
+    const items = pipeline[stage] || [];
+    document.getElementById('pc-' + stage).textContent = items.length;
+    const container = document.getElementById('pl-' + stage);
+    if (items.length === 0) {
+      container.innerHTML = `<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 0">None yet</div>`;
+    } else {
+      container.innerHTML = items.map(j => `<div class="pipeline-card"><div class="p-title">${j.title}</div><div class="p-co">${j.company}</div></div>`).join('');
+    }
+  });
+  document.getElementById('s-applied').textContent = pipeline.applied.length;
+}
+
+// ── Init ──────────────────────────────────────────────
+loadConfig();
+loadSponsors();
+</script>
+</body>
+</html>
